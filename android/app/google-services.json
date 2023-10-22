@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "671680428689",
+    "project_id": "glucosa-electronica",
+    "storage_bucket": "glucosa-electronica.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:671680428689:android:212d01beb40bf528955d30",
+        "android_client_info": {
+          "package_name": "com.example.glucosapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvSMFPnP3ZOQvUe1sFN8mC0lNps-g88nM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
