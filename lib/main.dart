@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glucosapp/Dashboard/dashboard.dart';
+import 'package:glucosapp/src/welcomePage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: const Dashboard(),
+      home: const WelcomePage(),
     );
   }
 }
