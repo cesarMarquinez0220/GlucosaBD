@@ -1,8 +1,11 @@
 // ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:glucosapp/Dashboard/dashboard.dart';
 import 'package:glucosapp/src/signup.dart';
 import 'Widget/bezierContainer.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key, this.title}) : super(key: key);
@@ -15,6 +18,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -36,7 +45,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title,
+      {bool isPassword = false, required TextEditingController controller}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -50,11 +60,13 @@ class _LoginPageState extends State<LoginPage> {
             height: 10,
           ),
           TextField(
-              obscureText: isPassword,
-              decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
-                  filled: true))
+            controller: controller,
+            obscureText: isPassword,
+            decoration: const InputDecoration(
+                border: InputBorder.none,
+                fillColor: Color(0xfff3f3f4),
+                filled: true),
+          ),
         ],
       ),
     );
@@ -62,8 +74,36 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget _submitButton() {
     return InkWell(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => const Dashboard()));
+      onTap: () async {
+        try {
+          String email = _emailController.text;
+          String password = _passwordController.text;
+
+          // ignore: unused_local_variable
+          UserCredential userCredential =
+              await _auth.signInWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+
+          // Navega a la página de inicio después del inicio de sesión exitoso
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Dashboard()),
+          );
+        } catch (e) {
+          // Maneja los errores de inicio de sesión aquí
+          // ignore: avoid_print
+          print("Error during login: $e");
+
+          // ignore: use_build_context_synchronously
+          DialogExample.showAlertDialog(
+            context,
+            'Error de inicio de sesión',
+            'La contraseña no coincide. \n\nPor favor, inténtalo de nuevo.',
+          );
+        }
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -87,6 +127,71 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
+    );
+  }
+
+  Widget _googleSignInButton() {
+    return InkWell(
+      onTap: () async {
+        try {
+          final GoogleSignInAccount? googleSignInAccount =
+              await googleSignIn.signIn();
+          final GoogleSignInAuthentication googleSignInAuthentication =
+              await googleSignInAccount!.authentication;
+
+          final AuthCredential credential = GoogleAuthProvider.credential(
+            accessToken: googleSignInAuthentication.accessToken,
+            idToken: googleSignInAuthentication.idToken,
+          );
+
+          // ignore: unused_local_variable
+          UserCredential userCredential =
+              await _auth.signInWithCredential(credential);
+
+          // Navega a la página de inicio después del inicio de sesión exitoso
+          // ignore: use_build_context_synchronously
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const Dashboard()),
+          );
+        } catch (e) {
+          // Maneja los errores de inicio de sesión con Google aquí
+          // ignore: avoid_print
+          print("Error during Google login: $e");
+        }
+      },
+      child: Container(
+          width: MediaQuery.of(context).size.width,
+          padding: const EdgeInsets.symmetric(vertical: 15),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: const Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            color: const Color.fromARGB(255, 255, 255,
+                255), // Puedes cambiar el color según tu preferencia
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.network(
+                'http://pngimg.com/uploads/google/google_PNG19635.png',
+                fit: BoxFit.cover,
+                height: 25, // Ajusta la altura según tus necesidades
+              ),
+              const SizedBox(width: 10),
+              const Text(
+                'Login with Google',
+                style: TextStyle(
+                    fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
+              ),
+            ],
+          )),
     );
   }
 
@@ -123,59 +228,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _facebookButton() {
-    return Container(
-      height: 50,
-      margin: const EdgeInsets.symmetric(vertical: 20),
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.all(Radius.circular(10)),
-      ),
-      child: Row(
-        children: <Widget>[
-          Expanded(
-            flex: 1,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xff1959a9),
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(5),
-                    topLeft: Radius.circular(5)),
-              ),
-              alignment: Alignment.center,
-              child: const Text('f',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 25,
-                      fontWeight: FontWeight.w400)),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Container(
-              decoration: const BoxDecoration(
-                color: Color(0xff2872ba),
-                borderRadius: BorderRadius.only(
-                    bottomRight: Radius.circular(5),
-                    topRight: Radius.circular(5)),
-              ),
-              alignment: Alignment.center,
-              child: const Text('Log in with Facebook',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w400)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const SignUpPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const SignUpPage()));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
@@ -208,19 +265,18 @@ class _LoginPageState extends State<LoginPage> {
     return RichText(
       textAlign: TextAlign.center,
       text: const TextSpan(
-          text: 'd',
+          text: 'GLU',
           style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w700,
-              color: Color(0xffe46b10)
-          ),
+              color: Color(0xffe46b10)),
           children: [
             TextSpan(
-              text: 'ev',
+              text: 'COS',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'rnz',
+              text: 'APP',
               style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
             ),
           ]),
@@ -230,8 +286,9 @@ class _LoginPageState extends State<LoginPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email id"),
-        _entryField("Password", isPassword: true),
+        _entryField("Email", controller: _emailController),
+        _entryField("Password",
+            isPassword: true, controller: _passwordController),
       ],
     );
   }
@@ -240,45 +297,52 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
-        body: SizedBox(
-      height: height,
-      child: Stack(
-        children: <Widget>[
-          Positioned(
+      body: SizedBox(
+        height: height,
+        child: Stack(
+          children: <Widget>[
+            Positioned(
               top: -height * .15,
               right: -MediaQuery.of(context).size.width * .4,
-              child: const BezierContainer()),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  SizedBox(height: height * .2),
-                  _title(),
-                  const SizedBox(height: 50),
-                  _emailPasswordWidget(),
-                  const SizedBox(height: 20),
-                  _submitButton(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    alignment: Alignment.centerRight,
-                    child: const Text('Forgot Password ?',
-                        style: TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w500)),
-                  ),
-                  _divider(),
-                  _facebookButton(),
-                  SizedBox(height: height * .055),
-                  _createAccountLabel(),
-                ],
+              child: const BezierContainer(),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(height: height * .2),
+                    _title(),
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    _emailPasswordWidget(),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    _submitButton(),
+
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      alignment: Alignment.centerRight,
+                      child: const Text('Forgot Password ?',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w500)),
+                    ),
+                    _divider(),
+                    SizedBox(height: height * .025),
+                    _googleSignInButton(), //iniciar sesión con Google
+                    _createAccountLabel(),
+                  ],
+                ),
               ),
             ),
-          ),
-          Positioned(top: 40, left: 0, child: _backButton()),
-        ],
+            Positioned(top: 40, left: 0, child: _backButton()),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

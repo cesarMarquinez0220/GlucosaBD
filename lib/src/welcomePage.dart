@@ -65,39 +65,13 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  Widget _label() {
-    return Container(
-        margin: const EdgeInsets.only(top: 40, bottom: 20),
-        child: const Column(
-          children: <Widget>[
-            Text(
-              'Quick login with Touch ID',
-              style: TextStyle(color: Colors.white, fontSize: 17),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Icon(Icons.fingerprint, size: 90, color: Colors.white),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Touch ID',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 15,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ],
-        ));
-  }
+
 
   Widget _title() {
     return RichText(
       textAlign: TextAlign.center,
       text: TextSpan(
-          text: 'd',
+          text: 'GLU',
           style: GoogleFonts.portLligatSans(
             textStyle: Theme.of(context).textTheme.displayLarge,
             fontSize: 30,
@@ -106,11 +80,11 @@ class _WelcomePageState extends State<WelcomePage> {
           ),
           children: const [
             TextSpan(
-              text: 'ev',
+              text: 'COS',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'rnz',
+              text: 'APP',
               style: TextStyle(color: Colors.white, fontSize: 30),
             ),
           ]),
@@ -153,7 +127,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 const SizedBox(
                   height: 20,
                 ),
-                _label()
+                
               ],
             ),
           ),

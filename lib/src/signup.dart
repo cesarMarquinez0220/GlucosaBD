@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:glucosapp/src/Widget/bezierContainer.dart';
 import 'package:glucosapp/src/loginPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SignUpPage extends StatefulWidget {
-  const SignUpPage({Key ?key, this.title}) : super(key: key);
+  const SignUpPage({Key? key, this.title}) : super(key: key);
 
   final String? title;
 
@@ -13,6 +15,10 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -27,14 +33,15 @@ class _SignUpPageState extends State<SignUpPage> {
               child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
             ),
             const Text('Back',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
       ),
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title,
+      {bool isPassword = false, required TextEditingController controller}) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -48,37 +55,104 @@ class _SignUpPageState extends State<SignUpPage> {
             height: 10,
           ),
           TextField(
+              controller: controller,
               obscureText: isPassword,
               decoration: const InputDecoration(
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
-                  filled: true))
+                  filled: true)),
         ],
       ),
     );
   }
 
   Widget _submitButton() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: const EdgeInsets.symmetric(vertical: 15),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: () async {
+        // Obtén los valores de los campos de entrada
+        String username = _usernameController.text.trim();
+        String email = _emailController.text.trim();
+        String password = _passwordController.text.trim();
+
+        // Verifica que todos los campos estén completos
+        if (username.isEmpty || email.isEmpty || password.isEmpty) {
+          DialogExample.showAlertDialog(
+            context,
+            'Faltan credenciales',
+            'Por favor, completa todos los campos.',
+          );
+          return;
+        }
+
+        try {
+          // Comprueba si el usuario ya existe
+          QuerySnapshot query = await FirebaseFirestore.instance
+              .collection('users')
+              .where('username', isEqualTo: username)
+              .get();
+
+          if (query.docs.isNotEmpty) {
+            // El usuario ya existe, muestra el diálogo de alerta
+            // ignore: use_build_context_synchronously
+            DialogExample.showUserAlreadyExistsDialog(context);
+          } else {
+            // Registra al usuario en Firebase Authentication
+            UserCredential userCredential =
+                await FirebaseAuth.instance.createUserWithEmailAndPassword(
+              email: email,
+              password: password,
+            );
+
+            // Obtiene el ID único del usuario registrado
+            String userId = userCredential.user!.uid;
+
+            // Guarda los datos adicionales en Firestore
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .set({
+              'username': username,
+              'email': email,
+              // Agrega más campos si es necesario
+            });
+
+            // Navega a la página de inicio o realiza otra acción después del registro exitoso
+            // ignore: use_build_context_synchronously
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginPage()),
+            );
+          }
+        } catch (e) {
+          // Maneja los errores de autenticación o Firestore aquí
+          // ignore: avoid_print
+          print("Error during registration: $e");
+        }
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           boxShadow: <BoxShadow>[
             BoxShadow(
-                color: Colors.grey.shade200,
-                offset: const Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2)
+              color: Colors.grey.shade200,
+              offset: const Offset(2, 4),
+              blurRadius: 5,
+              spreadRadius: 2,
+            )
           ],
           gradient: const LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-      child: const Text(
-        'Register Now',
-        style: TextStyle(fontSize: 20, color: Colors.white),
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [Color(0xfffbb448), Color(0xfff7892b)],
+          ),
+        ),
+        child: const Text(
+          'Register Now',
+          style: TextStyle(fontSize: 20, color: Colors.white),
+        ),
       ),
     );
   }
@@ -86,8 +160,8 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _loginAccountLabel() {
     return InkWell(
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const LoginPage()));
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const LoginPage()));
       },
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 20),
@@ -120,20 +194,18 @@ class _SignUpPageState extends State<SignUpPage> {
     return RichText(
       textAlign: TextAlign.center,
       text: const TextSpan(
-          text: 'd',
+          text: 'GLU',
           style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.w700,
-              color: Color(0xffe46b10)
-          ),
-
+              color: Color(0xffe46b10)),
           children: [
             TextSpan(
-              text: 'ev',
+              text: 'COS',
               style: TextStyle(color: Colors.black, fontSize: 30),
             ),
             TextSpan(
-              text: 'rnz',
+              text: 'APP',
               style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
             ),
           ]),
@@ -143,9 +215,10 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Username"),
-        _entryField("Email id"),
-        _entryField("Password", isPassword: true),
+        _entryField("Username", controller: _usernameController),
+        _entryField("Email", controller: _emailController),
+        _entryField("Password",
+            isPassword: true, controller: _passwordController),
       ],
     );
   }
@@ -190,6 +263,40 @@ class _SignUpPageState extends State<SignUpPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class DialogExample {
+  static void showAlertDialog(
+      BuildContext context, String title, String message) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: Text(
+          title,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Color.fromARGB(255, 253, 40, 40)),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, 'OK'),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  static void showUserAlreadyExistsDialog(BuildContext context) {
+    showAlertDialog(
+      context,
+      'Alerta',
+      'El usuario ya está registrado.',
     );
   }
 }
