@@ -231,7 +231,7 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.33,
                       width: MediaQuery.of(context).size.width * 0.45,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -319,7 +319,7 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     const SizedBox(width: 20),
                     Container(
-                      height: MediaQuery.of(context).size.height * 0.3,
+                      height: MediaQuery.of(context).size.height * 0.33,
                       width: MediaQuery.of(context).size.width * 0.45,
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -379,7 +379,7 @@ class _DashboardState extends State<Dashboard> {
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Row(
+                          Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
@@ -389,7 +389,7 @@ class _DashboardState extends State<Dashboard> {
                                     color: Colors.black,
                                     fontSize:
                                         MediaQuery.of(context).size.width *
-                                            0.055,
+                                            0.035,
                                   ),
                                 ),
                               ),
@@ -407,8 +407,8 @@ class _DashboardState extends State<Dashboard> {
                               ),
                             ],
                           ),
-                          const SizedBox(height: 12),
-                          Row(
+                          const SizedBox(height: 5),
+                          Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
@@ -418,7 +418,7 @@ class _DashboardState extends State<Dashboard> {
                                     color: Colors.black,
                                     fontSize:
                                         MediaQuery.of(context).size.width *
-                                            0.055,
+                                            0.035,
                                   ),
                                 ),
                               ),
