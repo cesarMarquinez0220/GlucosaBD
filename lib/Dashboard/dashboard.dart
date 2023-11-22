@@ -99,7 +99,7 @@ class _DashboardState extends State<Dashboard> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         decoration:
-            const BoxDecoration(color: Color.fromARGB(255, 206, 216, 216)),
+            const BoxDecoration(color: Color.fromARGB(255, 125, 189, 189)),
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.only(top: 50.0),
@@ -134,9 +134,9 @@ class _DashboardState extends State<Dashboard> {
                         'Track your health',
                         style: GoogleFonts.poppins(
                           textStyle: TextStyle(
-                            color: const Color.fromARGB(255, 105, 103, 103),
+                            color:  Colors.white,
                             letterSpacing: .5,
-                            fontSize: MediaQuery.of(context).size.width * 0.04,
+                            fontSize: MediaQuery.of(context).size.width * 0.05,
                           ),
                         ),
                       ),
@@ -146,7 +146,7 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(height: 20),
                 Container(
                   height: MediaQuery.of(context).size.height * 0.3,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: MediaQuery.of(context).size.width * 0.953,
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12.0),
@@ -162,6 +162,7 @@ class _DashboardState extends State<Dashboard> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      const SizedBox(height: 5),
                       Text(
                         'GLUCOSA',
                         style: GoogleFonts.inconsolata(
@@ -173,7 +174,7 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       Container(
                         height: MediaQuery.of(context).size.width *
                             0.19, // Adjusted height for the image container
@@ -223,6 +224,7 @@ class _DashboardState extends State<Dashboard> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 5),
                     ],
                   ),
                 ),
@@ -246,8 +248,9 @@ class _DashboardState extends State<Dashboard> {
                         ],
                       ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
+                          const SizedBox(height: 15),
                           Text(
                             'PROMEDIO',
                             style: GoogleFonts.inconsolata(
@@ -259,6 +262,7 @@ class _DashboardState extends State<Dashboard> {
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
+                            
                           ),
                           const SizedBox(height: 20),
                           Container(
