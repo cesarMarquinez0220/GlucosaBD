@@ -1,8 +1,8 @@
 // ignore_for_file: file_names
-
 import 'package:flutter/material.dart';
 import 'package:glucosapp/Dashboard/dashboard.dart';
 import 'package:glucosapp/src/signup.dart';
+import 'package:glucosapp/storageInfoUser/info.dart';
 import 'Widget/bezierContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -85,7 +85,9 @@ class _LoginPageState extends State<LoginPage> {
             email: email,
             password: password,
           );
-
+          String userUid = userCredential.user?.uid ?? '';
+          UserDataStorage.setUserName(userUid);
+          print(userUid);
           // Navega a la página de inicio después del inicio de sesión exitoso
           // ignore: use_build_context_synchronously
           Navigator.push(
@@ -121,7 +123,10 @@ class _LoginPageState extends State<LoginPage> {
             gradient: const LinearGradient(
                 begin: Alignment.centerLeft,
                 end: Alignment.centerRight,
-                colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+                colors: [
+                  Color.fromRGBO(251, 180, 72, 1),
+                  Color.fromRGBO(247, 137, 43, 1)
+                ])),
         child: const Text(
           'Login',
           style: TextStyle(fontSize: 20, color: Colors.white),
