@@ -152,7 +152,8 @@ class _LoginPageState extends State<LoginPage> {
           // ignore: unused_local_variable
           UserCredential userCredential =
               await _auth.signInWithCredential(credential);
-
+          String userUid = userCredential.user?.uid ?? '';
+          UserDataStorage.setUserName(userUid);
           // Navega a la página de inicio después del inicio de sesión exitoso
           // ignore: use_build_context_synchronously
           Navigator.push(
