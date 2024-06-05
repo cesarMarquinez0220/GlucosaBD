@@ -37,14 +37,19 @@ dependencies:
   cupertino_icons: ^1.0.2
   firebase_core: ^2.17.0
   firebase_auth: ^4.10.1
-  google_fonts: ^6.1.0
+  google_fonts: 6.1.0
   animate_do: ^3.1.2
-  syncfusion_flutter_charts: ^23.1.42
+  syncfusion_flutter_charts: ^25.2.6
   cloud_firestore: ^4.13.0
   google_sign_in: ^6.1.6
   firebase_database: ^10.3.5
-  fl_chart: ^0.40.0
-  intl: ^0.18.0
+  fl_chart: ^0.68.0
+  intl: ^0.19.0
+  smooth_page_indicator: ^1.1.0
+  image_picker: ^1.0.8
+  http: ^1.2.0
+  permission_handler: ^10.2.0
+  firebase_storage: ^11.6.9
   
 dev_dependencies:
   flutter_test:
@@ -55,7 +60,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,11 +78,22 @@ flutter:
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
   assets:
-   - assets/images/logo_glucosa.png  
+   - assets/images/logo_glucosa.png
+   - assets/images/fondo.png
+   - assets/images/logo.png  
    - assets/images/glucosa1.png
    - assets/images/Average.png
    - assets/images/Glucosa.png
    - assets/images/lecturas.png
+   - assets/images/camera.png
+   - assets/images/cargar.png
+   - assets/images/historial.png
+   - assets/images/image.png
+   - assets/images/vieja.jpeg
+   - assets/images/icono.png
+   - assets/images/carrusel1.png
+   - assets/images/carrusel2.png
+   - assets/images/carrusel3.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
