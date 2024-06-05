@@ -1,8 +1,9 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_super_parameters
 import 'package:flutter/material.dart';
-import 'package:glucosapp/Dashboard/dashboard.dart';
+import 'package:glucosapp/Home/dashboard.dart';
 import 'package:glucosapp/src/signup.dart';
 import 'package:glucosapp/storageInfoUser/info.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'Widget/bezierContainer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -37,7 +38,7 @@ class _LoginPageState extends State<LoginPage> {
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
             ),
-            const Text('Back',
+            const Text('Atras',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))
           ],
         ),
@@ -79,24 +80,25 @@ class _LoginPageState extends State<LoginPage> {
           String email = _emailController.text;
           String password = _passwordController.text;
 
-          // ignore: unused_local_variable
           UserCredential userCredential =
               await _auth.signInWithEmailAndPassword(
             email: email,
             password: password,
           );
+
           String userUid = userCredential.user?.uid ?? '';
           UserDataStorage.setUserName(userUid);
-          print(userUid);
+
           // Navega a la página de inicio después del inicio de sesión exitoso
           // ignore: use_build_context_synchronously
-          Navigator.push(
+          Navigator.pushReplacement(
+            // Cambia push a pushReplacement para evitar problemas de navegación
             context,
-            MaterialPageRoute(builder: (context) => const Dashboard()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    Dashboard(userId: userUid)), // Pasa userUid al Dashboard
           );
         } catch (e) {
-          // Maneja los errores de inicio de sesión aquí
-          // ignore: avoid_print
           print("Error during login: $e");
 
           // ignore: use_build_context_synchronously
@@ -112,21 +114,17 @@ class _LoginPageState extends State<LoginPage> {
         padding: const EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: const Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            gradient: const LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromRGBO(251, 180, 72, 1),
-                  Color.fromRGBO(247, 137, 43, 1)
-                ])),
+          color: const Color(0xFFF3A75B),
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.grey.shade200,
+              offset: const Offset(2, 4),
+              blurRadius: 5,
+              spreadRadius: 2,
+            )
+          ],
+        ),
         child: const Text(
           'Login',
           style: TextStyle(fontSize: 20, color: Colors.white),
@@ -149,55 +147,58 @@ class _LoginPageState extends State<LoginPage> {
             idToken: googleSignInAuthentication.idToken,
           );
 
-          // ignore: unused_local_variable
           UserCredential userCredential =
               await _auth.signInWithCredential(credential);
+
           String userUid = userCredential.user?.uid ?? '';
           UserDataStorage.setUserName(userUid);
+
           // Navega a la página de inicio después del inicio de sesión exitoso
           // ignore: use_build_context_synchronously
-          Navigator.push(
+          Navigator.pushReplacement(
+            // Cambia push a pushReplacement para evitar problemas de navegación
             context,
-            MaterialPageRoute(builder: (context) => const Dashboard()),
+            MaterialPageRoute(
+                builder: (context) =>
+                    Dashboard(userId: userUid)), // Pasa userUid al Dashboard
           );
         } catch (e) {
-          // Maneja los errores de inicio de sesión con Google aquí
-          // ignore: avoid_print
           print("Error during Google login: $e");
         }
       },
       child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(Radius.circular(5)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: const Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            color: const Color.fromARGB(255, 255, 255,
-                255), // Puedes cambiar el color según tu preferencia
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.network(
-                'http://pngimg.com/uploads/google/google_PNG19635.png',
-                fit: BoxFit.cover,
-                height: 25, // Ajusta la altura según tus necesidades
-              ),
-              const SizedBox(width: 10),
-              const Text(
-                'Login with Google',
-                style: TextStyle(
-                    fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
-              ),
-            ],
-          )),
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(vertical: 15),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          borderRadius: const BorderRadius.all(Radius.circular(5)),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.grey.shade200,
+              offset: const Offset(2, 4),
+              blurRadius: 5,
+              spreadRadius: 2,
+            )
+          ],
+          color: const Color.fromARGB(255, 255, 255, 255),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.network(
+              'http://pngimg.com/uploads/google/google_PNG19635.png',
+              fit: BoxFit.cover,
+              height: 25,
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Login with Google',
+              style:
+                  TextStyle(fontSize: 20, color: Color.fromARGB(255, 0, 0, 0)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -248,14 +249,14 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Don\'t have an account ?',
+              'No tienes una cuenta ?',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             SizedBox(
               width: 10,
             ),
             Text(
-              'Register',
+              'Registrate',
               style: TextStyle(
                   color: Color(0xfff79c4f),
                   fontSize: 13,
@@ -270,20 +271,18 @@ class _LoginPageState extends State<LoginPage> {
   Widget _title() {
     return RichText(
       textAlign: TextAlign.center,
-      text: const TextSpan(
-          text: 'GLU',
-          style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-              color: Color(0xffe46b10)),
-          children: [
+      text: TextSpan(
+          text: 'Skin',
+          style: GoogleFonts.portLligatSans(
+            textStyle: Theme.of(context).textTheme.displayLarge,
+            fontSize: 35,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+          children: const [
             TextSpan(
-              text: 'COS',
-              style: TextStyle(color: Colors.black, fontSize: 30),
-            ),
-            TextSpan(
-              text: 'APP',
-              style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
+              text: 'Disease',
+              style: TextStyle(color: Color(0xFFF3A75B), fontSize: 35),
             ),
           ]),
     );
@@ -293,7 +292,7 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: <Widget>[
         _entryField("Email", controller: _emailController),
-        _entryField("Password",
+        _entryField("Contraseña",
             isPassword: true, controller: _passwordController),
       ],
     );
@@ -333,7 +332,7 @@ class _LoginPageState extends State<LoginPage> {
                     Container(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       alignment: Alignment.centerRight,
-                      child: const Text('Forgot Password ?',
+                      child: const Text('Olvido contraseña?',
                           style: TextStyle(
                               fontSize: 14, fontWeight: FontWeight.w500)),
                     ),

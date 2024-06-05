@@ -3,6 +3,7 @@ import 'package:glucosapp/src/Widget/bezierContainer.dart';
 import 'package:glucosapp/src/loginPage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key, this.title}) : super(key: key);
@@ -32,7 +33,7 @@ class _SignUpPageState extends State<SignUpPage> {
               padding: const EdgeInsets.only(left: 0, top: 10, bottom: 10),
               child: const Icon(Icons.keyboard_arrow_left, color: Colors.black),
             ),
-            const Text('Back',
+            const Text('Atras',
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
           ],
         ),
@@ -134,6 +135,7 @@ class _SignUpPageState extends State<SignUpPage> {
         padding: const EdgeInsets.symmetric(vertical: 15),
         alignment: Alignment.center,
         decoration: BoxDecoration(
+          color: const Color(0xffF3A75B),
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           boxShadow: <BoxShadow>[
             BoxShadow(
@@ -143,14 +145,9 @@ class _SignUpPageState extends State<SignUpPage> {
               spreadRadius: 2,
             )
           ],
-          gradient: const LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
-            colors: [Color(0xfffbb448), Color(0xfff7892b)],
-          ),
         ),
         child: const Text(
-          'Register Now',
+          'Registrate',
           style: TextStyle(fontSize: 20, color: Colors.white),
         ),
       ),
@@ -171,7 +168,7 @@ class _SignUpPageState extends State<SignUpPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
-              'Already have an account ?',
+              'Ya tienes una cuenta ?',
               style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             ),
             SizedBox(
@@ -193,20 +190,18 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _title() {
     return RichText(
       textAlign: TextAlign.center,
-      text: const TextSpan(
-          text: 'GLU',
-          style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w700,
-              color: Color(0xffe46b10)),
-          children: [
+      text: TextSpan(
+          text: 'Skin',
+          style: GoogleFonts.portLligatSans(
+            textStyle: Theme.of(context).textTheme.displayLarge,
+            fontSize: 35,
+            fontWeight: FontWeight.w700,
+            color: Colors.black,
+          ),
+          children: const [
             TextSpan(
-              text: 'COS',
-              style: TextStyle(color: Colors.black, fontSize: 30),
-            ),
-            TextSpan(
-              text: 'APP',
-              style: TextStyle(color: Color(0xffe46b10), fontSize: 30),
+              text: 'Disease',
+              style: TextStyle(color: Color(0xFFF3A75B), fontSize: 35),
             ),
           ]),
     );
@@ -215,9 +210,9 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Username", controller: _usernameController),
+        _entryField("Nombre de usuario", controller: _usernameController),
         _entryField("Email", controller: _emailController),
-        _entryField("Password",
+        _entryField("Contraseña",
             isPassword: true, controller: _passwordController),
       ],
     );
