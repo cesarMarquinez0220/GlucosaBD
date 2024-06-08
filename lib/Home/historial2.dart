@@ -58,17 +58,44 @@ class _HistorialState extends State<Historial2> {
     File imageFile = File(widget.imagePath);
     String fileName =
         '${widget.userId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    Reference storageRef = FirebaseStorage.instance.ref().child("Imagenes de Usuarios/").child(fileName);
+    Reference storageRef = FirebaseStorage.instance
+        .ref()
+        .child("Imagenes de Usuarios/")
+        .child(fileName);
 
     try {
       // Subir la imagen al almacenamiento de Firebase
       await storageRef.putFile(imageFile);
       // Imagen guardada exitosamente
       print('Imagen guardada en Firebase Storage');
+      _showAlertDialog(
+          'Éxito', 'Imagen guardada exitosamente en Firebase Storage');
     } catch (error) {
       // Ocurrió un error al guardar la imagen
       print('Error al guardar la imagen en Firebase Storage: $error');
+      _showAlertDialog('Error',
+          'Hubo un error al guardar la imagen en Firebase Storage: $error');
     }
+  }
+
+  void _showAlertDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -191,8 +218,8 @@ class _HistorialState extends State<Historial2> {
                       ),
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * .18),
-                    ElevatedButton(
-                      onPressed: saveImageToFirebase,
+                    InkWell(
+                      onTap: saveImageToFirebase,
                       child: Container(
                         height: MediaQuery.of(context).size.height * .06,
                         width: MediaQuery.of(context).size.width * .8,

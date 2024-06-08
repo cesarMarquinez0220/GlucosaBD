@@ -32,4 +32,5 @@ class DialogExample {
       'El usuario ya está registrado.',
     );
   }
+  
 }
