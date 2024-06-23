@@ -191,8 +191,8 @@ class _HistorialState extends State<Historial2> {
                       ),
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * .18),
-                    ElevatedButton(
-                      onPressed: saveImageToFirebase,
+                    InkWell(
+                      onTap: saveImageToFirebase,
                       child: Container(
                         height: MediaQuery.of(context).size.height * .06,
                         width: MediaQuery.of(context).size.width * .8,

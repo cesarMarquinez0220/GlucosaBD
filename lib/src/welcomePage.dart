@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 import 'package:flutter/material.dart';
+import 'package:get/utils.dart';
+import 'package:glucosapp/src/Widget/bezierContainer.dart';
 import 'package:glucosapp/src/loginPage.dart';
 import 'package:glucosapp/src/signup.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -55,7 +57,7 @@ class _WelcomePageState extends State<WelcomePage> {
         padding: const EdgeInsets.symmetric(vertical: 13),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color:  Colors.black,
+          color: Colors.black,
           borderRadius: const BorderRadius.all(Radius.circular(5)),
           border: Border.all(color: Colors.black, width: 2),
         ),
@@ -90,42 +92,52 @@ class _WelcomePageState extends State<WelcomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
-              borderRadius: const BorderRadius.all(Radius.circular(5)),
-              boxShadow: <BoxShadow>[
-                BoxShadow(
-                    color: Colors.grey.shade200,
-                    offset: const Offset(2, 4),
-                    blurRadius: 5,
-                    spreadRadius: 2)
-              ],
-              gradient: const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color.fromARGB(255, 255, 255, 255),
-                    Color.fromARGB(255, 155, 154, 154)
-                  ])),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              _title(),
-               SizedBox(
-                height: MediaQuery.of(context).size.height*.3,
-              ),
-              _submitButton(),
-              const SizedBox(
-                height: 20,
-              ),
-              _signUpButton(),
-              
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          color: Colors.white,
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: const Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
             ],
-          ),
+            // gradient: const LinearGradient(
+            //     begin: Alignment.topCenter,
+            //     end: Alignment.bottomCenter,
+            //     colors: [
+            //       Color.fromARGB(255, 255, 255, 255),
+            //       Color.fromARGB(255, 155, 154, 154)
+            //     ])
+            ),
+        child: Stack(
+          children: [
+            Positioned(
+              top: -MediaQuery.of(context).size.height * .15,
+              right: -MediaQuery.of(context).size.width * .4,
+              child: const BezierContainer(),
+            ),
+            Container(
+               padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  _title(),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * .2,
+                  ),
+                  _submitButton(),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  _signUpButton(),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
