@@ -1,17 +1,24 @@
 // ignore_for_file: use_super_parameters
 
 import 'dart:io';
+import 'dart:convert';
+import 'dart:async';
+import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:glucosapp/Home/recepcion_img.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
+import 'package:mime/mime.dart';
 
-class Historial2 extends StatefulWidget {
+class Analisis extends StatefulWidget {
   final String userId;
   final String imagePath;
   final String date;
-  const Historial2(
+  const Analisis(
       {Key? key,
       required this.imagePath,
       required this.date,
@@ -19,10 +26,10 @@ class Historial2 extends StatefulWidget {
       : super(key: key);
 
   @override
-  State<Historial2> createState() => _HistorialState();
+  State<Analisis> createState() => _AnalisisState();
 }
 
-class _HistorialState extends State<Historial2> {
+class _AnalisisState extends State<Analisis> {
   late String calcvrg;
   late String diferenciaMaxMinValue; // Declare the variable as non-nullable
   late String lecturaMaxima;
@@ -31,6 +38,7 @@ class _HistorialState extends State<Historial2> {
   bool isTimerExpired = false;
   final controller = PageController(viewportFraction: 0.8, keepPage: true);
   //late Double num;
+  File? _imageFile;
 
   Future<void> takePicture(String userId) async {
     final ImagePicker picker = ImagePicker();
@@ -42,7 +50,7 @@ class _HistorialState extends State<Historial2> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => Historial2(
+          builder: (context) => Analisis(
             imagePath: image.path,
             date: DateFormat.yMMMd().format(DateTime.now()),
             userId: userId,
@@ -54,11 +62,110 @@ class _HistorialState extends State<Historial2> {
     }
   }
 
+  Future<void> _uploadImage() async {
+    if (widget.imagePath == null) return;
+
+    _showLoadingDialog(context);
+
+    try {
+      final uri = Uri.parse('https://0c9a6b152277.ngrok.app/process_image');
+      final request = http.MultipartRequest('POST', uri);
+
+      final mimeType = lookupMimeType(widget.imagePath);
+      final contentType = mimeType != null ? mimeType : 'image/jpeg';
+
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'image',
+          widget.imagePath,
+          contentType: MediaType.parse(contentType),
+        ),
+      );
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: $responseBody');
+      Navigator.pop(context);
+
+      if (response.statusCode == 200) {
+        // Convertir la respuesta a una imagen
+        final image = _decodeImage(responseBody);
+
+        if (image != null) {
+          // Navegar a otra pantalla con la imagen procesada
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ImageScreen(image: image),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Error al procesar la imagen')));
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+                Text('Error al procesar la imagen:  ${response.statusCode}')));
+      }
+    } catch (e) {
+      Navigator.pop(context); // Cerrar el diálogo de carga
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
+
+  Image? _decodeImage(String responseData) {
+    try {
+      // Decodificar el JSON
+      Map<String, dynamic> json = jsonDecode(responseData);
+
+      // Extraer la cadena base64 de los datos procesados de la imagen
+      String processedImageData = json['processed_image'];
+
+      // Decodificar la cadena base64 a bytes
+      Uint8List bytes = Uint8List.fromList(base64.decode(processedImageData));
+
+      // Crear una imagen desde los bytes decodificados
+      Image image = Image.memory(bytes);
+
+      return image;
+    } catch (e) {
+      print('Error al decodificar la imagen: $e');
+      return null;
+    }
+  }
+
+  void _showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CircularProgressIndicator(),
+              SizedBox(height: 20),
+              Text(
+                'Esto puede tomar un momento mientras se analiza la imagen',
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Future<void> saveImageToFirebase() async {
     File imageFile = File(widget.imagePath);
     String fileName =
         '${widget.userId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
-    Reference storageRef = FirebaseStorage.instance.ref().child("Imagenes de Usuarios/").child(fileName);
+    Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
 
     try {
       // Subir la imagen al almacenamiento de Firebase
@@ -88,7 +195,7 @@ class _HistorialState extends State<Historial2> {
                 child: GestureDetector(
                   onTap: () => takePicture(widget.userId),
                   child: Text(
-                    "Cancelar",
+                    "Cancelar1",
                     style: GoogleFonts.nunitoSans(
                       color: Colors.white,
                       fontSize: 23,
@@ -192,7 +299,7 @@ class _HistorialState extends State<Historial2> {
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * .18),
                     InkWell(
-                      onTap: saveImageToFirebase,
+                      onTap: _uploadImage,
                       child: Container(
                         height: MediaQuery.of(context).size.height * .06,
                         width: MediaQuery.of(context).size.width * .8,

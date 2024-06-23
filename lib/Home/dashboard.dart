@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:glucosapp/Home/historial2.dart';
+import 'package:glucosapp/Home/Analisis.dart';
 import 'package:glucosapp/Home/tabla.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -99,18 +99,6 @@ class _DashboardState extends State<Dashboard> {
     return true;
   }
 
-  Future<void> uploadImage() async {
-    if (_image == null) return;
-
-    String url = "AQUÍ_VA_LA_URL_DE_NGROK/predict";
-    var request = http.MultipartRequest('POST', Uri.parse(url));
-    request.files.add(await http.MultipartFile.fromPath('image', _image!.path));
-
-    var res = await request.send();
-    final resBody = await res.stream.bytesToString();
-    print(jsonDecode(resBody));
-  }
-
   Future getImage(String userId) async {
     bool hasStoragePermission = await checkStoragePermission();
     if (hasStoragePermission) {
@@ -121,7 +109,7 @@ class _DashboardState extends State<Dashboard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Historial2(
+            builder: (context) => Analisis(
               imagePath: image.path,
               date: DateTime.now().toString(),
               userId: userId,
@@ -146,7 +134,7 @@ class _DashboardState extends State<Dashboard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => Historial2(
+            builder: (context) => Analisis(
               imagePath: image.path,
               date: DateFormat.yMMMd().format(DateTime.now()),
               userId: userId,

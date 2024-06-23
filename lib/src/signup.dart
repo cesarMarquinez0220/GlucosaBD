@@ -127,6 +127,11 @@ class _SignUpPageState extends State<SignUpPage> {
         } catch (e) {
           // Maneja los errores de autenticación o Firestore aquí
           // ignore: avoid_print
+           DialogExample.showAlertDialog(
+            context,
+            'Error de Registro',
+            'Ocurrió un error durante el registro. Por favor, intenta nuevamente.',
+          );
           print("Error during registration: $e");
         }
       },
