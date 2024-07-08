@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:async';
 import 'dart:typed_data';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:glucosapp/Home/recepcion_img.dart';
@@ -30,10 +31,6 @@ class Analisis extends StatefulWidget {
 }
 
 class _AnalisisState extends State<Analisis> {
-  late String calcvrg;
-  late String diferenciaMaxMinValue; // Declare the variable as non-nullable
-  late String lecturaMaxima;
-  late String lecturaMinima;
   bool isTimerActive = false;
   bool isTimerExpired = false;
   final controller = PageController(viewportFraction: 0.8, keepPage: true);
@@ -68,7 +65,7 @@ class _AnalisisState extends State<Analisis> {
     _showLoadingDialog(context);
 
     try {
-      final uri = Uri.parse('https://0c9a6b152277.ngrok.app/process_image');
+      final uri = Uri.parse('https://1c5d4ee215ac.ngrok.app/process_image');
       final request = http.MultipartRequest('POST', uri);
 
       final mimeType = lookupMimeType(widget.imagePath);
@@ -91,14 +88,32 @@ class _AnalisisState extends State<Analisis> {
 
       if (response.statusCode == 200) {
         // Convertir la respuesta a una imagen
-        final image = _decodeImage(responseBody);
+        final decodedResponse = jsonDecode(responseBody);
+        final processedImageBytes =
+            _decodeImageToBytes(decodedResponse['processed_image']);
+        final imageUrl = await _saveImageToFirebase(processedImageBytes);
+        final image = _decodeImage(decodedResponse['processed_image']);
+        final detectedObject = decodedResponse['detected_object'];
+        final preProcessTime = decodedResponse['pre_process_time'];
+        final inferenceTime = decodedResponse['inference_time'];
+        final nmsTime = decodedResponse['nms_time'];
+        final confidenceUsed = decodedResponse['confidence_used'];
+        await saveAnalysisToFirestore(imageUrl, detectedObject, preProcessTime,
+            inferenceTime, nmsTime, confidenceUsed);
 
         if (image != null) {
           // Navegar a otra pantalla con la imagen procesada
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ImageScreen(image: image),
+              builder: (context) => ImageScreen(
+                image: image,
+                detectedObject: detectedObject,
+                preProcessTime: preProcessTime,
+                inferenceTime: inferenceTime,
+                nmsTime: nmsTime,
+                confidenceUsed: confidenceUsed,
+              ),
             ),
           );
         } else {
@@ -118,21 +133,10 @@ class _AnalisisState extends State<Analisis> {
     }
   }
 
-  Image? _decodeImage(String responseData) {
+  Image? _decodeImage(String base64String) {
     try {
-      // Decodificar el JSON
-      Map<String, dynamic> json = jsonDecode(responseData);
-
-      // Extraer la cadena base64 de los datos procesados de la imagen
-      String processedImageData = json['processed_image'];
-
-      // Decodificar la cadena base64 a bytes
-      Uint8List bytes = Uint8List.fromList(base64.decode(processedImageData));
-
-      // Crear una imagen desde los bytes decodificados
-      Image image = Image.memory(bytes);
-
-      return image;
+      Uint8List bytes = base64.decode(base64String);
+      return Image.memory(bytes);
     } catch (e) {
       print('Error al decodificar la imagen: $e');
       return null;
@@ -161,21 +165,53 @@ class _AnalisisState extends State<Analisis> {
     );
   }
 
-  Future<void> saveImageToFirebase() async {
-    File imageFile = File(widget.imagePath);
+  Future<void> saveAnalysisToFirestore(
+      String imageUrl,
+      String detectedObject,
+      String preProcessTime,
+      String inferenceTime,
+      String nmsTime,
+      double confidenceUsed) async {
+    try {
+      // Obtener referencia al documento del usuario
+      final userDocRef =
+          FirebaseFirestore.instance.collection('users').doc(widget.userId);
+
+      // Guardar los datos del análisis dentro del documento del usuario
+      await userDocRef.collection('analysis_results').add({
+        'date': widget.date,
+        'imageUrl': imageUrl,
+        'detectedObject': detectedObject,
+        'preProcessTime': preProcessTime,
+        'inferenceTime': inferenceTime,
+        'nmsTime': nmsTime,
+        'confidenceUsed': confidenceUsed,
+      });
+
+      // Imagen guardada exitosamente en Firestore
+      print('Análisis guardado en Firestore dentro del documento del usuario');
+    } catch (error) {
+      // Ocurrió un error al guardar el análisis
+      print('Error al guardar el análisis en Firestore: $error');
+    }
+  }
+
+  Uint8List _decodeImageToBytes(String base64String) {
+    try {
+      return base64.decode(base64String);
+    } catch (e) {
+      print('Error al decodificar la imagen: $e');
+      return Uint8List(0);
+    }
+  }
+
+  Future<String> _saveImageToFirebase(Uint8List imageBytes) async {
     String fileName =
         '${widget.userId}/${DateTime.now().millisecondsSinceEpoch}.jpg';
     Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
 
-    try {
-      // Subir la imagen al almacenamiento de Firebase
-      await storageRef.putFile(imageFile);
-      // Imagen guardada exitosamente
-      print('Imagen guardada en Firebase Storage');
-    } catch (error) {
-      // Ocurrió un error al guardar la imagen
-      print('Error al guardar la imagen en Firebase Storage: $error');
-    }
+    await storageRef.putData(imageBytes);
+    return await storageRef.getDownloadURL();
   }
 
   @override
@@ -248,56 +284,6 @@ class _AnalisisState extends State<Analisis> {
                 const SizedBox(height: 10),
                 Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0, right: 8.0),
-                      child: Container(
-                        height: MediaQuery.of(context).size.height * .3,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey
-                                  .withOpacity(0.5), // Color de la sombra
-                              spreadRadius: 3,
-                              blurRadius: 5,
-                              offset: const Offset(
-                                  4, 5), // La posición de la sombra
-                            ),
-                          ],
-                          color: const Color.fromARGB(255, 107, 107, 107),
-                          borderRadius: const BorderRadius.all(
-                            Radius.circular(25),
-                          ),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(25.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Tiempo de analisis:\n",
-                                style: GoogleFonts.nunitoSans(
-                                    fontSize: 22, color: Colors.white),
-                                textAlign: TextAlign.start,
-                              ),
-                              Text(
-                                "Seguridad de resultado:\n",
-                                style: GoogleFonts.nunitoSans(
-                                    fontSize: 22, color: Colors.white),
-                                textAlign: TextAlign.start,
-                              ),
-                              Text(
-                                "Diagnostico Obtenido:\n",
-                                style: GoogleFonts.nunitoSans(
-                                    fontSize: 22, color: Colors.white),
-                                textAlign: TextAlign.start,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: MediaQuery.of(context).size.height * .18),
                     InkWell(
                       onTap: _uploadImage,
                       child: Container(

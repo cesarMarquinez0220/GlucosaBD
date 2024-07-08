@@ -30,7 +30,7 @@ class _DashboardState extends State<Dashboard> {
   final pageController = PageController();
   bool isTimerActive = false;
   bool isTimerExpired = false;
-  File? _image;
+
 
   @override
   void initState() {
@@ -357,8 +357,9 @@ class _DashboardState extends State<Dashboard> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          const HistorialRegistro(),
+                                      builder: (context) => HistorialRegistro(
+                                        userId: widget.userId,
+                                      ),
                                     ),
                                   );
                                 },
